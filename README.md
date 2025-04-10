@@ -1,4 +1,4 @@
-# Vali-FileSize - File Size Conversion and Formatting for .NET
+#  <img src="https://github.com/UBF21/Vali-FileSize/blob/main/Vali-FileSize/logo-vali-filesize.png?raw=true" alt="Logo de Vali Mediator" style="width: 46px; height: 46px; max-width: 300px;">  Vali-FileSize - File Size Conversion and Formatting for .NET
 
 
 ## Introduction 🚀
