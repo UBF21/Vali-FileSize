@@ -1,201 +1,123 @@
 using System.Globalization;
-using Vali_FileSize.Core.Enums;
-using Vali_FileSize.Core.Utils;
+using ValiFileSize.Core.Enums;
+using ValiFileSize.Core.Interfaces;
+using ValiFileSize.Core.Utils;
 
-namespace Vali_FileSize.Core.Main;
+namespace ValiFileSize.Core.Main;
 
 /// <summary>
-/// A helper class for converting file sizes between different units.
+/// Default implementation of <see cref="IValiFileSize"/>.
+/// Stateless — safe to register as a singleton in dependency injection containers.
 /// </summary>
-public class ValiFileSize
+public sealed class ValiFileSize : IValiFileSize
 {
-    #region Constants
-    
-    /// <summary>
-    /// Represents the number of bytes in a kilobyte.
-    /// </summary>
     private const double BytesInKilobyte = Constants.Kilobyte;
-    
-    /// <summary>
-    /// Represents the number of bytes in a megabyte.
-    /// </summary>
     private const double BytesInMegabyte = BytesInKilobyte * Constants.Kilobyte;
-    
-    /// <summary>
-    /// Represents the number of bytes in a gigabyte.
-    /// </summary>
     private const double BytesInGigabyte = BytesInMegabyte * Constants.Kilobyte;
-    
-    /// <summary>
-    /// Represents the number of bytes in a terabyte.
-    /// </summary>
     private const double BytesInTerabyte = BytesInGigabyte * Constants.Kilobyte;
-    
-    /// <summary>
-    /// Represents the number of bytes in a petabyte.
-    /// </summary>
     private const double BytesInPetabyte = BytesInTerabyte * Constants.Kilobyte;
-    
-    #endregion
+    private const double BytesInExabyte  = BytesInPetabyte * Constants.Kilobyte;
 
-    #region Conversion Methods
-    
-    /// <summary>
-    /// Converts a file size from one unit to another.
-    /// </summary>
-    /// <param name="size">The size to convert.</param>
-    /// <param name="fromUnit">The source unit of the size.</param>
-    /// <param name="toUnit">The target unit to convert the size to.</param>
-    /// <returns>The converted size in the target unit.</returns>
-    /// <exception cref="ArgumentException">Thrown if the size is negative.</exception>
-    /// <exception cref="NotSupportedException">Thrown if an unsupported unit is provided.</exception>
+    /// <inheritdoc/>
     public double Convert(double size, FileSizeUnit fromUnit, FileSizeUnit toUnit)
     {
-        if (size < Constants.Zero) throw new ArgumentException("The size cannot be negative.", nameof(size));
+        if (size < 0) throw new ArgumentException("The size cannot be negative.", nameof(size));
 
-        double sizeInBytes = fromUnit switch
+        double bytes = fromUnit switch
         {
-            FileSizeUnit.Bytes => size,
-            FileSizeUnit.Kilobytes => KilobytesToBytes(size),
-            FileSizeUnit.Megabytes => MegabytesToBytes(size),
-            FileSizeUnit.Gigabytes => GigabytesToBytes(size),
-            FileSizeUnit.Terabytes => TerabytesToBytes(size),
-            FileSizeUnit.Petabytes => PetabytesToBytes(size),
-            _ => throw new NotSupportedException("Source unit not supported.")
+            FileSizeUnit.Bytes      => size,
+            FileSizeUnit.Kilobytes  => size * BytesInKilobyte,
+            FileSizeUnit.Megabytes  => size * BytesInMegabyte,
+            FileSizeUnit.Gigabytes  => size * BytesInGigabyte,
+            FileSizeUnit.Terabytes  => size * BytesInTerabyte,
+            FileSizeUnit.Petabytes  => size * BytesInPetabyte,
+            FileSizeUnit.Exabytes   => size * BytesInExabyte,
+            FileSizeUnit.Kibibytes  => size * BytesInKilobyte,
+            FileSizeUnit.Mebibytes  => size * BytesInMegabyte,
+            FileSizeUnit.Gibibytes  => size * BytesInGigabyte,
+            FileSizeUnit.Tebibytes  => size * BytesInTerabyte,
+            FileSizeUnit.Pebibytes  => size * BytesInPetabyte,
+            FileSizeUnit.Exbibytes  => size * BytesInExabyte,
+            _ => throw new NotSupportedException($"Source unit '{fromUnit}' is not supported.")
         };
 
         return toUnit switch
         {
-            FileSizeUnit.Bytes => sizeInBytes,
-            FileSizeUnit.Kilobytes => BytesToKilobytes(sizeInBytes),
-            FileSizeUnit.Megabytes => BytesToMegabytes(sizeInBytes),
-            FileSizeUnit.Gigabytes => BytesToGigabytes(sizeInBytes),
-            FileSizeUnit.Terabytes => BytesToTerabytes(sizeInBytes),
-            FileSizeUnit.Petabytes => BytesToPetabytes(sizeInBytes),
-            _ => throw new NotSupportedException("Source unit not supported.")
+            FileSizeUnit.Bytes      => bytes,
+            FileSizeUnit.Kilobytes  => bytes / BytesInKilobyte,
+            FileSizeUnit.Megabytes  => bytes / BytesInMegabyte,
+            FileSizeUnit.Gigabytes  => bytes / BytesInGigabyte,
+            FileSizeUnit.Terabytes  => bytes / BytesInTerabyte,
+            FileSizeUnit.Petabytes  => bytes / BytesInPetabyte,
+            FileSizeUnit.Exabytes   => bytes / BytesInExabyte,
+            FileSizeUnit.Kibibytes  => bytes / BytesInKilobyte,
+            FileSizeUnit.Mebibytes  => bytes / BytesInMegabyte,
+            FileSizeUnit.Gibibytes  => bytes / BytesInGigabyte,
+            FileSizeUnit.Tebibytes  => bytes / BytesInTerabyte,
+            FileSizeUnit.Pebibytes  => bytes / BytesInPetabyte,
+            FileSizeUnit.Exbibytes  => bytes / BytesInExabyte,
+            _ => throw new NotSupportedException($"Target unit '{toUnit}' is not supported.")
         };
     }
-    
-    #endregion
-    
-    #region Formatting Methods
-    
-    /// <summary>
-    /// Formats a file size as a human-readable string based on the specified unit.
-    /// </summary>
-    /// <param name="size">The size to format.</param>
-    /// <param name="unit">The unit in which the size will be expressed.</param>
-    /// <param name="decimalPlaces">The number of decimal places to display (default is 2).</param>
-    /// <param name="culture">The culture to use for numeric formatting (optional, defaults to current culture).</param>
-    /// <returns>A formatted string representing the size (e.g., "1.23 MB").</returns>
-    /// <exception cref="NotSupportedException">Thrown if an unsupported unit is provided.</exception>
-    public string FormatSize(double size, FileSizeUnit unit, int decimalPlaces = Constants.Two, CultureInfo? culture = null)
+
+    /// <inheritdoc/>
+    public string FormatSize(double size, FileSizeUnit unit, int decimalPlaces = 2, CultureInfo? culture = null)
     {
+        if (decimalPlaces < 0)
+            throw new ArgumentOutOfRangeException(nameof(decimalPlaces), "Decimal places cannot be negative.");
+
         culture ??= CultureInfo.CurrentCulture;
+
         string suffix = unit switch
         {
-            FileSizeUnit.Bytes => Constants.PrefixBytes,
-            FileSizeUnit.Kilobytes => Constants.PrefixKilobytes,
-            FileSizeUnit.Megabytes => Constants.PrefixMegabytes,
-            FileSizeUnit.Gigabytes => Constants.PrefixGigabytes,
-            FileSizeUnit.Terabytes => Constants.PrefixTerabytes,
-            FileSizeUnit.Petabytes => Constants.PrefixPetabytes,
-            _ => throw new NotSupportedException("Unit not supported.")
+            FileSizeUnit.Bytes      => Constants.PrefixBytes,
+            FileSizeUnit.Kilobytes  => Constants.PrefixKilobytes,
+            FileSizeUnit.Megabytes  => Constants.PrefixMegabytes,
+            FileSizeUnit.Gigabytes  => Constants.PrefixGigabytes,
+            FileSizeUnit.Terabytes  => Constants.PrefixTerabytes,
+            FileSizeUnit.Petabytes  => Constants.PrefixPetabytes,
+            FileSizeUnit.Exabytes   => Constants.PrefixExabytes,
+            FileSizeUnit.Kibibytes  => Constants.PrefixKibibytes,
+            FileSizeUnit.Mebibytes  => Constants.PrefixMebibytes,
+            FileSizeUnit.Gibibytes  => Constants.PrefixGibibytes,
+            FileSizeUnit.Tebibytes  => Constants.PrefixTebibytes,
+            FileSizeUnit.Pebibytes  => Constants.PrefixPebibytes,
+            FileSizeUnit.Exbibytes  => Constants.PrefixExbibytes,
+            _ => throw new NotSupportedException($"Unit '{unit}' is not supported.")
         };
+
         return $"{size.ToString($"F{decimalPlaces}", culture)} {suffix}";
     }
-    
-    /// <summary>
-    /// Determines the most appropriate unit for a given size in bytes and returns the converted value along with the unit.
-    /// </summary>
-    /// <param name="bytes">The size in bytes.</param>
-    /// <returns>A tuple containing the converted size and the most appropriate unit.</returns>
-    /// <exception cref="ArgumentException">Thrown if the size is negative.</exception>
-    public (double size, FileSizeUnit unit) GetBestUnit(double bytes)
-    {
-        if (bytes < Constants.Zero) throw new ArgumentException("The size cannot be negative.", nameof(bytes));
 
-        if (bytes >= BytesInPetabyte) return (BytesToPetabytes(bytes), FileSizeUnit.Petabytes);
-        if (bytes >= BytesInTerabyte) return (BytesToTerabytes(bytes), FileSizeUnit.Terabytes);
-        if (bytes >= BytesInGigabyte) return (BytesToGigabytes(bytes), FileSizeUnit.Gigabytes);
-        if (bytes >= BytesInMegabyte) return (BytesToMegabytes(bytes), FileSizeUnit.Megabytes);
-        if (bytes >= BytesInKilobyte) return (BytesToKilobytes(bytes), FileSizeUnit.Kilobytes);
+    /// <inheritdoc/>
+    public (double size, FileSizeUnit unit) GetBestUnit(double bytes, bool useIec = false)
+    {
+        if (bytes < 0) throw new ArgumentException("The size cannot be negative.", nameof(bytes));
+
+        if (useIec)
+        {
+            if (bytes >= BytesInExabyte)  return (bytes / BytesInExabyte,  FileSizeUnit.Exbibytes);
+            if (bytes >= BytesInPetabyte) return (bytes / BytesInPetabyte, FileSizeUnit.Pebibytes);
+            if (bytes >= BytesInTerabyte) return (bytes / BytesInTerabyte, FileSizeUnit.Tebibytes);
+            if (bytes >= BytesInGigabyte) return (bytes / BytesInGigabyte, FileSizeUnit.Gibibytes);
+            if (bytes >= BytesInMegabyte) return (bytes / BytesInMegabyte, FileSizeUnit.Mebibytes);
+            if (bytes >= BytesInKilobyte) return (bytes / BytesInKilobyte, FileSizeUnit.Kibibytes);
+            return (bytes, FileSizeUnit.Bytes);
+        }
+
+        if (bytes >= BytesInExabyte)  return (bytes / BytesInExabyte,  FileSizeUnit.Exabytes);
+        if (bytes >= BytesInPetabyte) return (bytes / BytesInPetabyte, FileSizeUnit.Petabytes);
+        if (bytes >= BytesInTerabyte) return (bytes / BytesInTerabyte, FileSizeUnit.Terabytes);
+        if (bytes >= BytesInGigabyte) return (bytes / BytesInGigabyte, FileSizeUnit.Gigabytes);
+        if (bytes >= BytesInMegabyte) return (bytes / BytesInMegabyte, FileSizeUnit.Megabytes);
+        if (bytes >= BytesInKilobyte) return (bytes / BytesInKilobyte, FileSizeUnit.Kilobytes);
         return (bytes, FileSizeUnit.Bytes);
     }
-    
-    #endregion
 
-    #region Private Conversions
-    
-    /// <summary>
-    /// Converts a size in bytes to kilobytes.
-    /// </summary>
-    /// <param name="bytes">The size in bytes to convert.</param>
-    /// <returns>The size in kilobytes.</returns>
-    private double BytesToKilobytes(double bytes) => bytes / BytesInKilobyte;
-    
-    /// <summary>
-    /// Converts a size in bytes to megabytes.
-    /// </summary>
-    /// <param name="bytes">The size in bytes to convert.</param>
-    /// <returns>The size in megabytes.</returns>
-    private double BytesToMegabytes(double bytes) => bytes / BytesInMegabyte;
-    
-    /// <summary>
-    /// Converts a size in bytes to gigabytes.
-    /// </summary>
-    /// <param name="bytes">The size in bytes to convert.</param>
-    /// <returns>The size in gigabytes.</returns>
-    private double BytesToGigabytes(double bytes) => bytes / BytesInGigabyte;
-    
-    /// <summary>
-    /// Converts a size in bytes to terabytes.
-    /// </summary>
-    /// <param name="bytes">The size in bytes to convert.</param>
-    /// <returns>The size in terabytes.</returns>
-    private double BytesToTerabytes(double bytes) => bytes / BytesInTerabyte;
-    
-    /// <summary>
-    /// Converts a size in bytes to petabytes.
-    /// </summary>
-    /// <param name="bytes">The size in bytes to convert.</param>
-    /// <returns>The size in petabytes.</returns>
-    private double BytesToPetabytes(double bytes) => bytes / BytesInPetabyte;
-    
-    /// <summary>
-    /// Converts a size in kilobytes to bytes.
-    /// </summary>
-    /// <param name="kilobytes">The size in kilobytes to convert.</param>
-    /// <returns>The size in bytes.</returns>
-    private double KilobytesToBytes(double kilobytes) => kilobytes * BytesInKilobyte;
-    
-    /// <summary>
-    /// Converts a size in megabytes to bytes.
-    /// </summary>
-    /// <param name="megabytes">The size in megabytes to convert.</param>
-    /// <returns>The size in bytes.</returns>
-    private double MegabytesToBytes(double megabytes) => megabytes * BytesInMegabyte;
-    
-    /// <summary>
-    /// Converts a size in gigabytes to bytes.
-    /// </summary>
-    /// <param name="gigabytes">The size in gigabytes to convert.</param>
-    /// <returns>The size in bytes.</returns>
-    private double GigabytesToBytes(double gigabytes) => gigabytes * BytesInGigabyte;
-    
-    /// <summary>
-    /// Converts a size in terabytes to bytes.
-    /// </summary>
-    /// <param name="terabytes">The size in terabytes to convert.</param>
-    /// <returns>The size in bytes.</returns>
-    private double TerabytesToBytes(double terabytes) => terabytes * BytesInTerabyte;
-    
-    /// <summary>
-    /// Converts a size in petabytes to bytes.
-    /// </summary>
-    /// <param name="petabytes">The size in petabytes to convert.</param>
-    /// <returns>The size in bytes.</returns>
-    private double PetabytesToBytes(double petabytes) => petabytes * BytesInPetabyte;
-
-    #endregion
+    /// <inheritdoc/>
+    public string FormatBestSize(double bytes, int decimalPlaces = 2, CultureInfo? culture = null, bool useIec = false)
+    {
+        var (size, unit) = GetBestUnit(bytes, useIec);
+        return FormatSize(size, unit, decimalPlaces, culture);
+    }
 }

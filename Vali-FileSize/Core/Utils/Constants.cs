@@ -1,58 +1,29 @@
-namespace Vali_FileSize.Core.Utils;
+namespace ValiFileSize.Core.Utils;
 
 /// <summary>
 /// Static class containing common constants used in file size conversions.
 /// </summary>
-public static class Constants
+internal static class Constants
 {
-    /// <summary>
-    /// Represents the value One (1).
-    /// </summary>
-    public const int One = 1;
-    
-    /// <summary>
-    /// Represents the default number of decimal places (2).
-    /// </summary>
-    public const int Two = 2;
-    
-    /// <summary>
-    /// Represents the value zero (0).
-    /// </summary>
-    public const int Zero = 0;
-    
     /// <summary>
     /// Represents the number of bytes in a kilobyte (1024).
     /// </summary>
     public const int Kilobyte = 1024;
 
-    /// <summary>
-    /// Suffix for bytes.
-    /// </summary>
-    public const string PrefixBytes = "B";
-    
-    /// <summary>
-    /// Suffix for kilobytes.
-    /// </summary>
-    public const string PrefixKilobytes = "KB";
-    
-    /// <summary>
-    /// Suffix for megabytes.
-    /// </summary>
-    public const string PrefixMegabytes = "MB";
-    
-    /// <summary>
-    /// Suffix for gigabytes.
-    /// </summary>
-    public const string PrefixGigabytes = "GB";
-    
-    /// <summary>
-    /// Suffix for terabytes.
-    /// </summary>
-    public const string PrefixTerabytes = "TB";
-    
-    /// <summary>
-    /// Suffix for petabytes.
-    /// </summary>
-    public const string PrefixPetabytes = "PB";
-    
+    // Traditional binary prefixes (KB, MB, GB…)
+    public const string PrefixBytes      = "B";
+    public const string PrefixKilobytes  = "KB";
+    public const string PrefixMegabytes  = "MB";
+    public const string PrefixGigabytes  = "GB";
+    public const string PrefixTerabytes  = "TB";
+    public const string PrefixPetabytes  = "PB";
+    public const string PrefixExabytes   = "EB";
+
+    // IEC binary prefixes (KiB, MiB, GiB…)
+    public const string PrefixKibibytes  = "KiB";
+    public const string PrefixMebibytes  = "MiB";
+    public const string PrefixGibibytes  = "GiB";
+    public const string PrefixTebibytes  = "TiB";
+    public const string PrefixPebibytes  = "PiB";
+    public const string PrefixExbibytes  = "EiB";
 }

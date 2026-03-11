@@ -1,37 +1,51 @@
-namespace Vali_FileSize.Core.Enums;
+namespace ValiFileSize.Core.Enums;
 
 /// <summary>
 /// Enumeration representing supported file size units.
 /// </summary>
 public enum FileSizeUnit
 {
-    /// <summary>
-    /// Represents a size in bytes (B), the smallest unit of digital information.
-    /// </summary>
+    // ── Traditional binary units (display: KB / MB / GB…) ──────────────────
+
+    /// <summary>Bytes (B) — base unit.</summary>
     Bytes,
-    
-    /// <summary>
-    /// Represents a size in kilobytes (KB), equivalent to 1024 bytes.
-    /// </summary>
+
+    /// <summary>Kilobytes (KB) — 1 024 bytes.</summary>
     Kilobytes,
-    
-    /// <summary>
-    /// Represents a size in megabytes (MB), equivalent to 1024 kilobytes.
-    /// </summary>
+
+    /// <summary>Megabytes (MB) — 1 024 KB.</summary>
     Megabytes,
-    
-    /// <summary>
-    /// Represents a size in gigabytes (GB), equivalent to 1024 megabytes.
-    /// </summary>
+
+    /// <summary>Gigabytes (GB) — 1 024 MB.</summary>
     Gigabytes,
-    
-    /// <summary>
-    /// Represents a size in terabytes (TB), equivalent to 1024 gigabytes.
-    /// </summary>
+
+    /// <summary>Terabytes (TB) — 1 024 GB.</summary>
     Terabytes,
-    
-    /// <summary>
-    /// Represents a size in petabytes (PB), equivalent to 1024 terabytes.
-    /// </summary>
-    Petabytes
+
+    /// <summary>Petabytes (PB) — 1 024 TB.</summary>
+    Petabytes,
+
+    /// <summary>Exabytes (EB) — 1 024 PB.</summary>
+    Exabytes,
+
+    // ── IEC binary units (display: KiB / MiB / GiB…) ───────────────────────
+    // Same 1 024-based math; different suffix to follow the IEC 80000-13 standard.
+
+    /// <summary>Kibibytes (KiB) — 1 024 bytes.</summary>
+    Kibibytes,
+
+    /// <summary>Mebibytes (MiB) — 1 024 KiB.</summary>
+    Mebibytes,
+
+    /// <summary>Gibibytes (GiB) — 1 024 MiB.</summary>
+    Gibibytes,
+
+    /// <summary>Tebibytes (TiB) — 1 024 GiB.</summary>
+    Tebibytes,
+
+    /// <summary>Pebibytes (PiB) — 1 024 TiB.</summary>
+    Pebibytes,
+
+    /// <summary>Exbibytes (EiB) — 1 024 PiB.</summary>
+    Exbibytes
 }

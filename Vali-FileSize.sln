@@ -1,6 +1,8 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vali-FileSize", "Vali-FileSize\Vali-FileSize.csproj", "{FA0C697F-946E-4E07-A904-C1829667D0D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vali-FileSize.Tests", "Vali-FileSize.Tests\Vali-FileSize.Tests.csproj", "{C8F7A3B2-4E5D-4C6B-9A1E-2F3D4E5F6A7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +14,9 @@ Global
 		{FA0C697F-946E-4E07-A904-C1829667D0D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA0C697F-946E-4E07-A904-C1829667D0D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA0C697F-946E-4E07-A904-C1829667D0D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8F7A3B2-4E5D-4C6B-9A1E-2F3D4E5F6A7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8F7A3B2-4E5D-4C6B-9A1E-2F3D4E5F6A7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8F7A3B2-4E5D-4C6B-9A1E-2F3D4E5F6A7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8F7A3B2-4E5D-4C6B-9A1E-2F3D4E5F6A7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

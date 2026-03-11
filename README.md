@@ -1,163 +1,322 @@
-#  <img src="https://github.com/UBF21/Vali-FileSize/blob/main/Vali-FileSize/logo-vali-filesize.png?raw=true" alt="Logo de Vali Mediator" style="width: 46px; height: 46px; max-width: 300px;">  Vali-FileSize - File Size Conversion and Formatting for .NET
+#  <img src="https://github.com/UBF21/Vali-FileSize/blob/main/Vali-FileSize/logo-vali-filesize.png?raw=true" alt="Logo Vali-FileSize" style="width: 46px; height: 46px; vertical-align: middle;">  Vali-FileSize
 
+> Lightweight .NET library for file size conversion, formatting and automatic unit detection.
 
-## Introduction 🚀
+[![NuGet](https://img.shields.io/nuget/v/Vali-FileSize)](https://www.nuget.org/packages/Vali-FileSize)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE.txt)
+[![.NET](https://img.shields.io/badge/.NET-Standard%202.0%2B%20%7C%206%20%7C%207%20%7C%208%20%7C%209-purple)](https://dotnet.microsoft.com)
 
-Welcome to **Vali-FileSize** , a lightweight .NET library designed to simplify file size conversions and formatting. Whether you're working with bytes, kilobytes, megabytes, gigabytes, terabytes, or petabytes, **Vali-FileSize** provides a fluent and intuitive API to convert sizes, format them into human-readable strings, and automatically detect the most suitable unit. Perfect for applications requiring precise file size handling, this library integrates seamlessly into any .NET project.
+---
 
-## Installation 📦
-To add **Vali-FileSize** to your .NET project, install it via NuGet with the following command:
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+  - [Convert](#convert)
+  - [FormatSize](#formatsize)
+  - [GetBestUnit](#getbestunit)
+  - [FormatBestSize](#formatbestsize)
+- [Extension Methods](#extension-methods)
+- [IEC / Binary Prefixes](#iec--binary-prefixes)
+- [Dependency Injection](#dependency-injection)
+- [Supported Units](#supported-units)
+- [Donations](#donations)
+- [License](#license)
+
+---
+
+## Installation
 
 ```sh
 dotnet add package Vali-FileSize
 ```
 
-Ensure your project targets a compatible .NET version (e.g., .NET Standard 2.0 or later). **Vali-FileSize** is lightweight and has minimal dependencies, making it an easy addition to your application.
+Supports **.NET Standard 2.0 and 2.1**, **.NET 6, 7, 8 and 9**.
 
-## Usage 🛠️
+| Target | Compatible runtimes |
+|--------|-------------------|
+| `netstandard2.0` | .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5+ |
+| `netstandard2.1` | .NET Core 3.0+, .NET 5+ |
+| `net6.0` – `net9.0` | .NET 6, 7, 8, 9 |
 
-**Vali-FileSize** focuses on converting file sizes between units and formatting them for display. The library provides a simple class, **ValiFileSize** , with methods to perform conversions, format sizes with cultural support, and determine the best unit for a given size.
+---
 
-### Basic Example
-
-Here’s how you can convert and format a file size:
-
-```csharp
-using Shared.Converters;
-using Shared.Enums.Data;
-
-var converter = new ValiFileSize();
-
-// Convert 1.5 terabytes to bytes
-double sizeInBytes = converter.Convert(1.5, FileSizeUnit.Terabytes, FileSizeUnit.Bytes);
-Console.WriteLine(sizeInBytes); // Outputs: 1,610,612,736,000
-
-// Format a size in megabytes
-string formattedSize = converter.FormatSize(123.456, FileSizeUnit.Megabytes);
-Console.WriteLine(formattedSize); // Outputs: "123.46 MB"
-```
-
-## Key Methods 📝
-
-**Vali-FileSize** offers a straightforward API for file size management. Below are the key methods provided by the **ValiFileSize** class:
-
-### Convert 🏗️
-
-Converts a file size from one unit to another with precision:
+## Quick Start
 
 ```csharp
-var converter = new ValiFileSize();
+using ValiFileSize.Core.Main;
+using ValiFileSize.Core.Enums;
 
-// Convert 2.5 gigabytes to kilobytes
-double sizeInKilobytes = converter.Convert(2.5, FileSizeUnit.Gigabytes, FileSizeUnit.Kilobytes);
-Console.WriteLine(sizeInKilobytes); // Outputs: 2,621,440
+var fs = new ValiFileSize();
+
+// Convert 2.5 GB → KB
+double kb = fs.Convert(2.5, FileSizeUnit.Gigabytes, FileSizeUnit.Kilobytes);
+Console.WriteLine(kb); // 2621440
+
+// Format a raw byte count with automatic unit selection
+string label = fs.FormatBestSize(1_234_567_890);
+Console.WriteLine(label); // "1.15 GB"
 ```
 
-### FormatSize 🎨
-
-Formats a size into a human-readable string with customizable decimal places and cultural formatting:
+Or even shorter with **extension methods**:
 
 ```csharp
-var converter = new ValiFileSize();
+using ValiFileSize.Core.Extensions;
 
-// Format 1,234,567 bytes as megabytes
-string formatted = converter.FormatSize(1234567, FileSizeUnit.Megabytes, decimalPlaces: 3);
-Console.WriteLine(formatted); // Outputs: "1.177 MB"
+string label = 1_234_567_890L.FormatBestSize(); // "1.15 GB"
 ```
-### GetBestUnit 🔍
 
-Automatically determines the most appropriate unit for a given size in bytes:
+---
+
+## API Reference
+
+### Convert
+
+Converts a value from one unit to another. All units use the binary base (1 024).
 
 ```csharp
-var converter = new ValiFileSize();
-
-// Find the best unit for 1,234,567,890 bytes
-var (size, unit) = converter.GetBestUnit(1234567890);
-string bestFormat = converter.FormatSize(size, unit);
-Console.WriteLine(bestFormat); // Outputs: "1.15 GB"
+double Convert(double size, FileSizeUnit fromUnit, FileSizeUnit toUnit)
 ```
-
-## Working with Advanced Features 🧩
-
-**Vali-FileSize** supports advanced use cases like cultural formatting and precise conversions:
-
-### Cultural Formatting
-
-Format sizes according to specific cultures:
 
 ```csharp
-using System.Globalization;
+// 1.5 TB → bytes
+double bytes = fs.Convert(1.5, FileSizeUnit.Terabytes, FileSizeUnit.Bytes);
+// 1 649 267 441 664
 
-var converter = new ValiFileSize();
-var germanCulture = new CultureInfo("de-DE");
+// 512 MB → GB
+double gb = fs.Convert(512, FileSizeUnit.Megabytes, FileSizeUnit.Gigabytes);
+// 0.5
 
-string formatted = converter.FormatSize(1234.567, FileSizeUnit.Kilobytes, 2, germanCulture);
-Console.WriteLine(formatted); // Outputs: "1234,57 KB" (uses comma as decimal separator)
+// Exabytes
+double eb = fs.Convert(2, FileSizeUnit.Exabytes, FileSizeUnit.Petabytes);
+// 2 048
+
+// IEC units follow the same 1 024 base, different display suffix
+double b = fs.Convert(1, FileSizeUnit.Mebibytes, FileSizeUnit.Bytes);
+// 1 048 576
 ```
 
-### Combining Features
+**Exceptions**
 
-Convert, detect the best unit, and format in one flow:
+| Condition | Exception |
+|-----------|-----------|
+| `size < 0` | `ArgumentException` |
+| Unknown unit | `NotSupportedException` |
+
+---
+
+### FormatSize
+
+Formats a value as a human-readable string.
 
 ```csharp
-var converter = new ValiFileSize();
-double bytes = converter.Convert(5.75, FileSizeUnit.Terabytes, FileSizeUnit.Bytes);
-
-var (size, unit) = converter.GetBestUnit(bytes);
-string result = converter.FormatSize(size, unit);
-
-Console.WriteLine(result); // Outputs: "5.75 TB"
+string FormatSize(double size, FileSizeUnit unit, int decimalPlaces = 2, CultureInfo? culture = null)
 ```
-
-## Comparison: Without vs. With Vali-FileSize ⚖️
-
-### Without Vali-FileSize (Manual Conversion)
-
-Manually handling file size conversions can be tedious and error-prone:
 
 ```csharp
-double bytes = 2.5 * 1024 * 1024 * 1024; // GB to bytes
-double kilobytes = bytes / 1024;
-Console.WriteLine($"{kilobytes:F2} KB"); // Outputs: "2621440.00 KB"
+fs.FormatSize(1.5, FileSizeUnit.Megabytes);                          // "1.50 MB"
+fs.FormatSize(1.23456, FileSizeUnit.Gigabytes, decimalPlaces: 4);   // "1.2346 GB"
+fs.FormatSize(512, FileSizeUnit.Bytes, decimalPlaces: 0);            // "512 B"
+fs.FormatSize(1.0, FileSizeUnit.Exabytes);                           // "1.00 EB"
+
+// IEC suffix
+fs.FormatSize(1.0, FileSizeUnit.Gibibytes);                          // "1.00 GiB"
+fs.FormatSize(1.0, FileSizeUnit.Exbibytes);                          // "1.00 EiB"
+
+// Cultural formatting
+var de = new CultureInfo("de-DE");
+fs.FormatSize(1234.5, FileSizeUnit.Kilobytes, 2, de);               // "1234,50 KB"
 ```
 
-### With Vali-FileSize (Simplified Conversion)
+**Exceptions**
 
-**Vali-FileSize** streamlines the process with a clean API:
+| Condition | Exception |
+|-----------|-----------|
+| `decimalPlaces < 0` | `ArgumentOutOfRangeException` |
+| Unknown unit | `NotSupportedException` |
+
+---
+
+### GetBestUnit
+
+Selects the most appropriate unit for a byte count and returns the converted value.
 
 ```csharp
-var converter = new ValiFileSize();
-double kilobytes = converter.Convert(2.5, FileSizeUnit.Gigabytes, FileSizeUnit.Kilobytes);
-string formatted = converter.FormatSize(kilobytes, FileSizeUnit.Kilobytes);
-Console.WriteLine(formatted); // Outputs: "2621440.00 KB"
+(double size, FileSizeUnit unit) GetBestUnit(double bytes, bool useIec = false)
 ```
-## Features and Enhancements 🌟
 
-### Recent Updates
+```csharp
+var (size, unit) = fs.GetBestUnit(1_234_567_890);
+// size = 1.15, unit = FileSizeUnit.Gigabytes
 
-- Initial release (v1.0.0) with support for conversions across bytes, KB, MB, GB, TB, and PB.
-- Added **FormatSize** method with customizable decimal precision and cultural number formatting.
-- Introduced **GetBestUnit** for automatic unit selection, improving usability.
-- Ensured robust validation with negative size checks and comprehensive exception handling.
+var (size2, unit2) = fs.GetBestUnit(1_048_576, useIec: true);
+// size2 = 1.0, unit2 = FileSizeUnit.Mebibytes
 
-### Planned Features
+double oneEB = 1024.0 * 1024 * 1024 * 1024 * 1024 * 1024;
+var (size3, unit3) = fs.GetBestUnit(oneEB);
+// size3 = 1.0, unit3 = FileSizeUnit.Exabytes
+```
 
-- Support for additional units like exabytes (EB) and beyond.
-- Enhanced formatting options, such as binary prefixes (KiB, MiB, etc.) for IEC standards.
+| Range | Returned unit (default) | Returned unit (`useIec: true`) |
+|-------|------------------------|-------------------------------|
+| < 1 024 B | Bytes | Bytes |
+| 1 024 B – 1 MB | Kilobytes | Kibibytes |
+| 1 MB – 1 GB | Megabytes | Mebibytes |
+| 1 GB – 1 TB | Gigabytes | Gibibytes |
+| 1 TB – 1 PB | Terabytes | Tebibytes |
+| 1 PB – 1 EB | Petabytes | Pebibytes |
+| ≥ 1 EB | Exabytes | Exbibytes |
 
-Follow the project on GitHub for updates on new features and improvements!
+---
 
-## Donations 💖
-If you find **Vali-FileSize** useful and would like to support its development, consider making a donation:
+### FormatBestSize
 
-- **For Latin America**: [Donate via MercadoPago](https://link.mercadopago.com.pe/felipermm)
-- **For International Donations**: [Donate via PayPal](https://paypal.me/felipeRMM?country.x=PE&locale.x=es_XC)
+Combines `GetBestUnit` + `FormatSize` in a single call — the most convenient method for displaying raw byte counts.
 
+```csharp
+string FormatBestSize(double bytes, int decimalPlaces = 2, CultureInfo? culture = null, bool useIec = false)
+```
 
-Your contributions help keep this project alive and improve its development! 🚀
+```csharp
+fs.FormatBestSize(0);                                   // "0.00 B"
+fs.FormatBestSize(2048);                                // "2.00 KB"
+fs.FormatBestSize(1_234_567_890);                       // "1.15 GB"
+fs.FormatBestSize(1_234_567_890, decimalPlaces: 4);     // "1.1498 GB"
+fs.FormatBestSize(1_048_576, useIec: true);             // "1.00 MiB"
 
-## License 📜
-This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+var de = new CultureInfo("de-DE");
+fs.FormatBestSize(1_234_567_890, culture: de);          // "1,15 GB"
+```
 
-## Contributions 🤝
-Feel free to open issues and submit pull requests to improve this library!
+**Before vs. After**
+
+```csharp
+// Before — manual, error-prone
+double bytes  = 2.5 * 1024 * 1024 * 1024;
+string result = $"{bytes / 1024 / 1024 / 1024:F2} GB"; // "2.50 GB"
+
+// After — one line
+string result = fs.FormatBestSize(2.5 * 1024 * 1024 * 1024); // "2.50 GB"
+```
+
+---
+
+## Extension Methods
+
+Add `using ValiFileSize.Core.Extensions;` to use extension methods directly on `double` and `long` values — no need to instantiate `ValiFileSize` manually.
+
+### `ToFormattedSize`
+
+Formats a known-unit value as a string.
+
+```csharp
+1.5.ToFormattedSize(FileSizeUnit.Megabytes);                    // "1.50 MB"
+1024L.ToFormattedSize(FileSizeUnit.Kilobytes, decimalPlaces: 0); // "1024 KB"
+1.0.ToFormattedSize(FileSizeUnit.Exbibytes);                    // "1.00 EiB"
+
+var de = new CultureInfo("de-DE");
+1.5.ToFormattedSize(FileSizeUnit.Megabytes, 2, de);             // "1,50 MB"
+```
+
+### `FormatBestSize`
+
+Treats the value as bytes, auto-detects the best unit, and returns a formatted string.
+
+```csharp
+512L.FormatBestSize();                       // "512.00 B"
+2048L.FormatBestSize();                      // "2.00 KB"
+1_234_567_890L.FormatBestSize();             // "1.15 GB"
+1_234_567_890L.FormatBestSize(useIec: true); // "1.15 GiB"
+```
+
+### `GetBestUnit`
+
+Treats the value as bytes and returns the best unit as a tuple.
+
+```csharp
+var (size, unit) = 1_048_576L.GetBestUnit();
+// size = 1.0, unit = FileSizeUnit.Megabytes
+
+var (size2, unit2) = 1_048_576L.GetBestUnit(useIec: true);
+// size2 = 1.0, unit2 = FileSizeUnit.Mebibytes
+```
+
+---
+
+## IEC / Binary Prefixes
+
+The IEC 80000-13 standard distinguishes between **decimal** (SI) and **binary** prefixes.
+Vali-FileSize uses **binary (1 024-based)** math for all units.
+Pass `useIec: true` to display the unambiguous IEC suffixes (KiB, MiB, GiB…).
+
+```csharp
+// Same data, two display conventions
+fs.FormatBestSize(1_048_576);               // "1.00 MB"  ← traditional
+fs.FormatBestSize(1_048_576, useIec: true); // "1.00 MiB" ← IEC
+```
+
+You can also use IEC units explicitly in `Convert` and `FormatSize`:
+
+```csharp
+fs.FormatSize(fs.Convert(500, FileSizeUnit.Mebibytes, FileSizeUnit.Gibibytes), FileSizeUnit.Gibibytes, 3);
+// "0.488 GiB"
+```
+
+---
+
+## Dependency Injection
+
+`ValiFileSize` implements `IValiFileSize`. Register it in your DI container to decouple your code from the concrete class.
+
+```csharp
+// ASP.NET Core / Generic Host
+builder.Services.AddSingleton<IValiFileSize, ValiFileSize>();
+```
+
+```csharp
+// Usage via constructor injection
+public class FileService(IValiFileSize fileSize)
+{
+    public string Describe(long byteCount) => fileSize.FormatBestSize(byteCount);
+}
+```
+
+---
+
+## Supported Units
+
+| Enum value | Suffix | Base |
+|------------|--------|------|
+| `FileSizeUnit.Bytes` | B | — |
+| `FileSizeUnit.Kilobytes` | KB | 1 024 |
+| `FileSizeUnit.Megabytes` | MB | 1 024² |
+| `FileSizeUnit.Gigabytes` | GB | 1 024³ |
+| `FileSizeUnit.Terabytes` | TB | 1 024⁴ |
+| `FileSizeUnit.Petabytes` | PB | 1 024⁵ |
+| `FileSizeUnit.Exabytes` | EB | 1 024⁶ |
+| `FileSizeUnit.Kibibytes` | KiB | 1 024 |
+| `FileSizeUnit.Mebibytes` | MiB | 1 024² |
+| `FileSizeUnit.Gibibytes` | GiB | 1 024³ |
+| `FileSizeUnit.Tebibytes` | TiB | 1 024⁴ |
+| `FileSizeUnit.Pebibytes` | PiB | 1 024⁵ |
+| `FileSizeUnit.Exbibytes` | EiB | 1 024⁶ |
+
+---
+
+## Donations
+
+If Vali-FileSize is useful to you, consider supporting its development:
+
+- **Latin America** — [MercadoPago](https://link.mercadopago.com.pe/felipermm)
+- **International** — [PayPal](https://paypal.me/felipeRMM?country.x=PE&locale.x=es_XC)
+
+---
+
+## License
+
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
+## Contributions
+
+Issues and pull requests are welcome on [GitHub](https://github.com/UBF21/Vali-FileSize).

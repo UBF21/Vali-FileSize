@@ -12,3 +12,7 @@ packages/
 
 # Ignorar la carpeta .idea
 .idea/
+
+# Claude Code — solo local
+CLAUDE.md
+.claude/
